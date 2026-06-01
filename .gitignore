@@ -1,0 +1,7 @@
+__pycache__/
+*.pyc
+data_store/
+*.db
+*.xlsx
+*.xlsm
+*.xls
