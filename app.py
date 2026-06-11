@@ -7,7 +7,8 @@ from datetime import date, timedelta
 
 from database import (init_db, date_exists, insert_production, insert_sells,
                       log_upload, get_date_range, get_uploaded_dates,
-                      get_upload_count, get_total_production_amount,
+                      get_upload_count, get_upload_log,
+                      get_total_production_amount,
                       get_total_sells_amount, delete_date, delete_all)
 from parser import parse_excel, extract_date_from_filename
 from analytics import Aggregator, KPIEngine, load_dataframe
@@ -271,6 +272,26 @@ with st.expander("📋 Detailed Data Table", expanded=False):
         st.dataframe(display_df, use_container_width=True, height=400)
     else:
         st.caption("No data to display.")
+
+with st.expander("📁 Uploaded Files", expanded=False):
+    upload_log_df = pd.DataFrame(get_upload_log())
+    if not upload_log_df.empty:
+        upload_log_df["report_date"] = pd.to_datetime(
+            upload_log_df["report_date"], errors="coerce"
+        ).dt.strftime("%Y-%m-%d")
+        upload_log_df["uploaded_at"] = pd.to_datetime(
+            upload_log_df["uploaded_at"], errors="coerce"
+        ).dt.strftime("%Y-%m-%d %H:%M")
+        upload_log_df = upload_log_df.rename(columns={
+            "file_name": "File name",
+            "report_date": "Report date",
+            "uploaded_at": "Uploaded at",
+            "records_prod": "Production rows",
+            "records_sells": "Sells rows",
+        }).fillna("")
+        st.dataframe(upload_log_df, use_container_width=True, height=320)
+    else:
+        st.caption("No uploaded files yet.")
 
 # ─── Footer Stats ──────────────────────────────────────────────────────────
 st.markdown("---")

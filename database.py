@@ -136,6 +136,18 @@ def get_upload_count() -> int:
     return count
 
 
+def get_upload_log() -> list[dict]:
+    conn = get_conn()
+    conn.row_factory = sqlite3.Row
+    rows = conn.execute("""
+        SELECT file_name, report_date, uploaded_at, records_prod, records_sells
+        FROM upload_log
+        ORDER BY report_date DESC, uploaded_at DESC
+    """).fetchall()
+    conn.close()
+    return [dict(r) for r in rows]
+
+
 def get_total_production_amount() -> float:
     conn = get_conn()
     val = conn.execute("SELECT COALESCE(SUM(amount), 0) FROM production_records").fetchone()[0]
